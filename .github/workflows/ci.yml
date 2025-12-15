@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  basic-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Ensure text exists and is non-empty
+        run: test -s war_and_peace.txt
+
+      - name: Show file stats
+        run: |
+          wc -l war_and_peace.txt
+          wc -w war_and_peace.txt
+
+      - name: Verify file is plain UTF-8 text
+        run: |
+          file -bi war_and_peace.txt | grep -q "text/plain"
+
+      - name: Fail on Windows line endings
+        run: |
+          if file war_and_peace.txt | grep -q "CRLF"; then
+            echo "Detected CRLF line endings; please convert to LF." >&2
+            exit 1
+          fi
